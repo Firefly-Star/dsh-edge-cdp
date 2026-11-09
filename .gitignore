@@ -1,0 +1,9 @@
+# 运行时目录：浏览器 profile（登录态）、页签认领记录、日志。
+# profile 等同密码，绝不入库。
+var/
+var-test/
+
+# 安装时生成的备份
+*.bak-*
+
+node_modules/

@@ -1,0 +1,8 @@
+# dsh-edge-cdp bundle patch.
+#
+# One server-side plugin: it owns the Edge process (headed, resident, detached
+# from the DSH session tree), exposes CDP as tools, and registers the edge-cdp
+# skill bundle. It has no client half -- the browser window IS the UI.
+- insert:
+    - id: edge-cdp
+      name: 'dsh-edge-cdp'

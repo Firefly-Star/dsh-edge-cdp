@@ -1,0 +1,55 @@
+{
+  "name": "dsh-edge-cdp",
+  "version": "0.1.0",
+  "description": "Headed, resident Microsoft Edge for DSH agents: one shared browser, CDP tools, per-tab ownership records, and a lifecycle the user can actually see and interrupt.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "files": [
+    "lib",
+    "assets",
+    "bin",
+    "cordis.patch.yml",
+    "install.ps1",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node test/all.mjs",
+    "test:launch": "node test/all.mjs --with-launch"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "~4.0.5",
+    "@deepseek-ai/dsh": ">=0.2.1-rc.5"
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "cordis",
+    "plugin",
+    "cdp",
+    "edge",
+    "browser",
+    "automation"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Firefly-Star/dsh-edge-cdp.git"
+  },
+  "homepage": "https://github.com/Firefly-Star/dsh-edge-cdp#readme",
+  "bugs": {
+    "url": "https://github.com/Firefly-Star/dsh-edge-cdp/issues"
+  },
+  "author": "Firefly-Star"
+}

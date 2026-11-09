@@ -1,0 +1,10 @@
+# 统一用 LF 入库：这些文件在 Linux/macOS 上也要能读。
+# 只有 .ps1/.cmd 保持 CRLF —— Windows PowerShell 5.1 对 LF 的怪癖不值得冒险。
+* text=auto eol=lf
+
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+
+# 二进制资源不参与换行转换
+*.png binary
+*.ico binary
