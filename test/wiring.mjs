@@ -54,19 +54,56 @@ test('插件已加入 dsh.profile.bundles', () => {
   assert.ok(manifest.dsh.profile.bundles.includes('dsh-edge-cdp'), 'bundles 里缺 dsh-edge-cdp');
 });
 
-test('node_modules 里是一个真正的链接，而不是普通目录', () => {
+/*
+ * Two supported install shapes, and they need different assertions:
+ *
+ *  - linked (local development): a reparse point pointing at this checkout.
+ *    DSH finds it through `linkedProfileRoots`, which requires
+ *    `lstat().isSymbolicLink()` -- a plain directory silently never loads.
+ *  - registry/git (normal install): pnpm materialises a real directory. DSH
+ *    resolves it as an ordinary profile dependency, so a plain directory is
+ *    correct here and must NOT be rejected.
+ *
+ * The test refuses only the one state that is always wrong: something that
+ * looks like a directory but is not reachable as the plugin.
+ */
+test('node_modules 里的插件可被 DSH 发现', () => {
   const linkPath = path.join(PROFILE_DIR, 'node_modules', 'dsh-edge-cdp');
   assert.ok(fs.existsSync(linkPath), `找不到 ${linkPath}`);
   const stat = fs.lstatSync(linkPath);
-  // This is the exact predicate DSH's linkedProfileRoots uses.
-  assert.equal(stat.isSymbolicLink(), true, '不是链接：DSH 不会把它当成 profile 插件加载');
-  const target = fs.readlinkSync(linkPath);
-  assert.equal(path.resolve(target), PACKAGE_ROOT, `链接指向 ${target}，不是当前插件目录`);
+  if (stat.isSymbolicLink()) {
+    const target = path.resolve(fs.readlinkSync(linkPath));
+    assert.ok(fs.existsSync(path.join(target, 'lib', 'index.js')), `链接指向 ${target}，但那里没有插件入口`);
+    console.log(`       (linked install -> ${target})`);
+  } else {
+    assert.ok(stat.isDirectory(), '既不是链接也不是目录');
+    assert.ok(
+      fs.existsSync(path.join(linkPath, 'lib', 'index.js')),
+      '普通目录里没有插件入口：可能是安装不完整'
+    );
+    console.log('       (installed copy)');
+  }
 });
 
-test('通过链接能读到插件入口', () => {
+test('通过 node_modules 能读到插件入口', () => {
   const entry = path.join(PROFILE_DIR, 'node_modules', 'dsh-edge-cdp', 'lib', 'index.js');
   assert.ok(fs.existsSync(entry), `找不到 ${entry}`);
+});
+
+test('已安装的副本运行时文件齐全', () => {
+  const root = path.join(PROFILE_DIR, 'node_modules', 'dsh-edge-cdp');
+  for (const file of [
+    'lib/index.js',
+    'lib/tools.js',
+    'lib/core/paths.js',
+    'lib/core/tool-schema.js',
+    'assets/edge-cdp/SKILL.md',
+    'assets/edge-cdp/references/recipes.md',
+    'assets/edge-cdp/references/pitfalls.md',
+    'cordis.patch.yml',
+  ]) {
+    assert.ok(fs.existsSync(path.join(root, file)), `已安装副本缺少 ${file}`);
+  }
 });
 
 test('插件的 cordis.patch.yml 声明了 edge-cdp 入口', () => {
